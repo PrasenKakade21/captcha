@@ -1,11 +1,19 @@
 from flask import Flask,session,Response,request,render_template,jsonify
 from captcha import generate_captcha
 import redis
+from dotenv import load_dotenv
+import os
 # Create a Flask application instance with the name of the current module
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = "kakdi"
-r = redis.Redis(host='localhost', port=6379, decode_responses=True)
-
+r = redis.Redis(
+    host=os.getenv('REDIS_HOST'),
+    port=os.getenv('REDIS_PORT'),
+    decode_responses=True,
+    username=os.getenv('REDIS_USERNAME'),
+    password=os.getenv('REDIS_PASSOWRD'),
+)
 # Use the route() decorator to bind a URL path (/) to a function
 @app.route("/")
 def home():
