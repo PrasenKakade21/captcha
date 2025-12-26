@@ -1,0 +1,40 @@
+{
+  "info": {
+    "name": "Captcha API",
+    "_postman_id": "d5f9b8e6-1234-4abc-9876-abcdef123456",
+    "description": "Collection for testing Captcha API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Captcha",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"length\": 6,\n    \"size\": [200, 70],\n    \"color\": [\"red\", \"blue\", \"green\"],\n    \"lines\": 5,\n    \"dots\": 30,\n    \"distort\": \"wave\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/captcha?uid=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["captcha"],
+          "query": [
+            {
+              "key": "uid",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
