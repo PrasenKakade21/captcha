@@ -95,4 +95,4 @@ def verify():
         return jsonify({"error": "Failed to verify captcha"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True) # Run the app in debug mode
+    app.run(debug=True,host='0.0.0.0')
