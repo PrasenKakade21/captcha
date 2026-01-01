@@ -6,24 +6,60 @@ import math
 # ---------------------------
 # Text / Base Image Generator
 # ---------------------------
+from PIL import Image, ImageDraw, ImageFont
+import random
+
 def generate_base_image(text, size=(200, 70), color='black'):
     img = Image.new('RGB', size, color='white')
     draw = ImageDraw.Draw(img)
-    
-    font_size = int(size[1] *0.6)
-    font = ImageFont.load_default(font_size)  # Use truetype if needed
-    
-    x_offset = 10
+
+    padding = 10
+    font_size = int(size[1] * 0.6)
+
+    # IMPORTANT: Use a TrueType font if possible
+    # fallback shown for safety
+    try:
+        font_path = "DejaVuSans.ttf"
+        get_font = lambda fs: ImageFont.truetype(font_path, fs)
+    except:
+        get_font = lambda fs: ImageFont.load_default()
+
+    # 🔹 Find the largest font size that fits
+    while font_size > 5:
+        font = get_font(font_size)
+
+        total_width = 0
+        for char in text:
+            bbox = draw.textbbox((0, 0), char, font=font)
+            char_width = bbox[2] - bbox[0]
+            total_width += char_width + int(font_size * 0.2)  # spacing
+
+        total_width -= int(font_size * 0.2)  # remove last spacing
+
+        if total_width + padding * 2 <= size[0]:
+            break
+
+        font_size -= 1
+
+    # 🔹 Draw characters
+    x_offset = padding
     for char in text:
         if isinstance(color, list):
             fill = random.choice(color)
         elif color == 'multicolor':
-            fill = "#" + "".join(random.choices('0123456789ABCDEFGHIJKLMONPQRSTUVWXYZ', k=6))
+            fill = "#" + "".join(random.choices('0123456789ABCDEF', k=6))
         else:
             fill = color
-        draw.text((x_offset, (size[1]-font_size)//2), char, fill=fill, font=font)
-        x_offset += font_size * 0.8
-    print((size[1]-font_size/2)//2,font_size)
+
+        bbox = draw.textbbox((0, 0), char, font=font)
+        char_width = bbox[2] - bbox[0]
+        char_height = bbox[3] - bbox[1]
+
+        y = (size[1] - char_height) // 2
+        draw.text((x_offset, y), char, fill=fill, font=font)
+
+        x_offset += char_width + int(font_size * 0.2)
+
     return img
 
 # ---------------------------
