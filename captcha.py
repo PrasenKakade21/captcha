@@ -3,6 +3,9 @@ import random
 import string
 import io
 import math
+import numpy as np
+from scipy.ndimage import gaussian_filter, map_coordinates
+
 # ---------------------------
 # Text / Base Image Generator
 # ---------------------------
@@ -95,12 +98,45 @@ def wave_distortion(img):
             if 0 <= new_y < height:
                 new_img.putpixel((x, y), img.getpixel((x, new_y)))
     return new_img
+def elastic_distort_light(
+    img: Image.Image,
+    strength: int = 8,
+    grid_size: int = 8
+) -> Image.Image:
+    """
+    strength  → max pixel displacement
+    grid_size → smaller = smoother & faster
+    """
+
+    w, h = img.size
+
+    # Small random displacement grid
+    dx_small = np.random.randint(-strength, strength + 1, (grid_size, grid_size))
+    dy_small = np.random.randint(-strength, strength + 1, (grid_size, grid_size))
+
+    # Upscale displacement to image size
+    dx = Image.fromarray(dx_small.astype(np.int16)).resize((w, h), Image.BICUBIC)
+    dy = Image.fromarray(dy_small.astype(np.int16)).resize((w, h), Image.BICUBIC)
+
+    dx = np.array(dx)
+    dy = np.array(dy)
+
+    x, y = np.meshgrid(np.arange(w), np.arange(h))
+    map_x = np.clip(x + dx, 0, w - 1).astype(np.int32)
+    map_y = np.clip(y + dy, 0, h - 1).astype(np.int32)
+
+    img_np = np.array(img)
+    distorted = img_np[map_y, map_x]
+
+    return Image.fromarray(distorted)
 
 def apply_distortion(img, distort='none'):
     if distort == 'wave':
         img = wave_distortion(img)
     elif distort == 'blur':
         img = img.filter(ImageFilter.GaussianBlur(2))
+    elif distort == 'elastic':
+        img = elastic_distort_light(img, strength=3, grid_size=6)
     return img
 
 # ---------------------------
