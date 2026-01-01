@@ -4,7 +4,6 @@ import string
 import io
 import math
 import numpy as np
-from scipy.ndimage import gaussian_filter, map_coordinates
 
 # ---------------------------
 # Text / Base Image Generator
